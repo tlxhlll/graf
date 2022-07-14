@@ -3,6 +3,7 @@ import os
 from os import path
 import time
 import copy
+import pdb
 import torch
 torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
@@ -39,12 +40,11 @@ if __name__ == '__main__':
     config = load_config(args.config, 'configs/default.yaml')
     config['data']['fov'] = float(config['data']['fov'])
     config = update_config(config, unknown)
-
     # Short hands
-    batch_size = config['training']['batch_size']
-    restart_every = config['training']['restart_every']
-    fid_every = config['training']['fid_every']
-    save_every = config['training']['save_every']
+    batch_size = config['training']['batch_size']  #carla batch size=8
+    restart_every = config['training']['restart_every']  #-1
+    fid_every = config['training']['fid_every']  #5000
+    save_every = config['training']['save_every']  
     backup_every = config['training']['backup_every']
     save_best = config['training']['save_best']
     assert save_best=='fid' or save_best=='kid', 'Invalid save best metric!'
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     device = torch.device("cuda:0")
 
     # Dataset
-    train_dataset, hwfr, render_poses = get_data(config)
+    train_dataset, hwfr, render_poses = get_data(config) #hwfr [128, 128, 238.85125168440817, 10.0]
     # in case of orthographic projection replace focal length by far-near
     if config['data']['orthographic']:
         hw_ortho = (config['data']['far']-config['data']['near'], config['data']['far']-config['data']['near'])
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         train_dataset,
         batch_size=batch_size,
         num_workers=config['training']['nworkers'],
-        shuffle=True, pin_memory=True, sampler=None, drop_last=True
+        shuffle=True, pin_memory=True, sampler=None, drop_last=True,generator=torch.Generator(device='cuda')
     )
 
     val_dataset = train_dataset
@@ -178,6 +178,7 @@ if __name__ == '__main__':
 
     # Load checkpoint if it exists
     try:
+        pdb.set_trace()
         load_dict = checkpoint_io.load(model_file)
     except FileNotFoundError:
         it = epoch_idx = -1
@@ -196,8 +197,8 @@ if __name__ == '__main__':
         update_average(generator_test, generator, 0.)
 
     # Learning rate anneling
-    d_lr = d_optimizer.param_groups[0]['lr']
-    g_lr = g_optimizer.param_groups[0]['lr']
+    d_lr = d_optimizer.param_groups[0]['lr'] #discriminator lr?
+    g_lr = g_optimizer.param_groups[0]['lr'] #generator lr?
     g_scheduler = build_lr_scheduler(g_optimizer, config, last_epoch=it)
     d_scheduler = build_lr_scheduler(d_optimizer, config, last_epoch=it)
     # ensure lr is not decreased again

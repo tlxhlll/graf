@@ -86,7 +86,7 @@ class CheckpointIO(object):
         Args:
             state_dict (dict): State dict of model
     '''
-
+        #TODO parameters from ani-nerf should be inited by pretrained model in ani-nerf
         for k, v in self.module_dict.items():
             if k in state_dict:
                 v.load_state_dict(state_dict[k])

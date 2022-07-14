@@ -1,4 +1,4 @@
-name: graf
+name: GAHRF
 channels:
   - conda-forge
   - anaconda

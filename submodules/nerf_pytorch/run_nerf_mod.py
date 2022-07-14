@@ -1,9 +1,11 @@
 import os, sys
+import imp
 import numpy as np
 import imageio
 import json
 import random
 import time
+import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,7 +15,8 @@ from functools import partial
 
 import matplotlib.pyplot as plt
 
-from .run_nerf_helpers_mod import *
+from .run_ani_nerf_helpers_mod import *
+#from .run_nerf_helpers_mod import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
@@ -177,14 +180,14 @@ def render_path(render_poses, hwf, chunk, render_kwargs, features=None, gt_imgs=
 
 
 def create_nerf(args):
-    embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
+    embed_fn, input_ch = embedder.get_embedder(args.multires, args.i_embed)
 
     input_ch += args.feat_dim - args.feat_dim_appearance
 
     input_ch_views = 0
     embeddirs_fn = None
     if args.use_viewdirs:
-        embeddirs_fn, input_ch_views = get_embedder(args.multires_views, args.i_embed)
+        embeddirs_fn, input_ch_views = embedder.get_embedder(args.multires_views, args.i_embed)
     input_ch_views += args.feat_dim_appearance
 
     output_ch = 5 if args.N_importance > 0 else 4

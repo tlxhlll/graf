@@ -3,6 +3,7 @@ import torch
 from torchvision.transforms import *
 
 from .datasets import *
+import pdb
 from .transforms import FlexGridRaySampler
 from .utils import polar_to_cartesian, look_at, to_phi, to_theta
 
@@ -117,7 +118,6 @@ def build_models(config, disc=True):
     from submodules.nerf_pytorch.run_nerf_mod import create_nerf
     from .models.generator import Generator
     from .models.discriminator import Discriminator
-
     config_nerf = Namespace(**config['nerf'])
     # Update config for NERF
     config_nerf.chunk = min(config['training']['chunk'], 1024*config['training']['batch_size'])     # let batch size for training with patches limit the maximal memory
